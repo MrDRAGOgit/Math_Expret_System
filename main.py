@@ -2,9 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
-Input = ""
 EditorOpen = False
-
 
 class KeyEditor(Toplevel):
     def __init__(self, parent):
@@ -18,24 +16,46 @@ class KeyEditor(Toplevel):
 
 
 class MainApp(tk.Tk):
+    N = 1
+    Input = ""
+    txt_edit = 0
+    filepath = "keywords.txt"
+    keys = []
+    keysfound = []
+    showkeys = ""
+
     def __init__(self):
         super().__init__()
+        with open(self.filepath, mode="r", encoding="utf-8") as input_file:
+            for text in input_file:
+                text = text[:-2]
+                self.keys.append(text.split(';'))
+        print(self.keys)
         self.title("Math Expert System")
-        txt_edit = Text(self, width=40, height=10)
-        showkeys = LabelFrame(self, width=40, height=10)
-        keysbase = ["", "", ""]
-        keysbase[0] = Label(showkeys, text="agdfiafi")
+        self.txt_edit = Text(self, width=40, height=10)
+        self.showkeys = LabelFrame(self, text="Found keys will be shown here", width=40, height=10)
+        self.keysfound = [Label(self.showkeys, text="")]
+
         frm_buttons = Frame(self, relief=RAISED, bd=2)
-        btn_input = Button(frm_buttons, text="input", command=self.read_input)
-        btn_analyze = Button(frm_buttons, text="analyze", command=self.analyze)
-        btn_call_keyeditor = Button(frm_buttons, text="edit keys", command=self.open_editor)
+        btn_input = Button(frm_buttons, text="Input", command=self.read_input)
+        btn_analyze = Button(frm_buttons, text="Analyze", command=self.analyze)
+        btn_call_keyeditor = Button(frm_buttons, text="Edit keys", command=self.open_editor)
 
         btn_input.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
         btn_analyze.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
         btn_call_keyeditor.grid(row=0, column=2, sticky="ew", padx=5, pady=5)
 
+        self.set_keys()
+
+        self.showkeys.grid(row=0, column=1, sticky="ns")
         frm_buttons.grid(row=1, column=0, sticky="ns")
-        txt_edit.grid(row=0, column=0, sticky="nsew")
+        self.txt_edit.grid(row=0, column=0, sticky="nsew")
+
+    def set_keys(self):
+        i = 0
+        for key in self.keysfound:
+            key.grid(row=i, column=0, sticky="ew", padx=5, pady=5)
+            i += 1
 
     def open_editor(self):
         global EditorOpen
@@ -45,20 +65,17 @@ class MainApp(tk.Tk):
             editor.grab_set()
 
     def read_input(self):
-        global Input
-        Input = self.txt_edit.get("1.0", END)
+        self.Input = self.txt_edit.get("1.0", END)
 
     def analyze(self):
-        global Input
-        if "abc" in Input:
-            print("yes")
-        else:
-            print("no")
-
-
-filepath = "keywords.txt"
-with open(filepath, mode="r", encoding="utf-8") as input_file:
-    text = input_file.read()
+        for row in self.keys:
+            for key in row:
+                if key in self.Input:
+                    print("yes")
+                    self.keysfound.append(Label(self.showkeys, text=key))
+                else:
+                    print("no")
+        self.set_keys()
 
 
 window = MainApp()
