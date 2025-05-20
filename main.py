@@ -5,14 +5,54 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 EditorOpen = False
 
 class KeyEditor(Toplevel):
+    txt_box = ""
     def __init__(self, parent):
         super().__init__(parent)
         self.protocol("WM_DELETE_WINDOW", self.close_editor)
         self.title("Addition of key words")
+        self.rowconfigure(0, minsize=800, weight=1)
+        self.columnconfigure(1, minsize=800, weight=1)
+        self.txt_box = tk.Text(self)
+        frm_buttons = tk.Frame(self, relief=tk.RAISED, bd=2)
+        btn_open = tk.Button(frm_buttons, text="Open", command=self.open_file)
+        btn_save = tk.Button(frm_buttons, text="Save As...", command=self.save_file)
+
+        btn_open.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+        btn_save.grid(row=1, column=0, sticky="ew", padx=5)
+
+        frm_buttons.grid(row=0, column=0, sticky="ns")
+        self.txt_box.grid(row=0, column=1, sticky="nsew")
+
     def close_editor(self):
         self.destroy()
         global EditorOpen
         EditorOpen = False
+
+    def open_file(self):
+        """Open a file for editing."""
+        filepath = askopenfilename(
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+        )
+        if not filepath:
+            return
+        self.txt_box.delete("1.0", tk.END)
+        with open(filepath, mode="r", encoding="utf-8") as input_file:
+            text = input_file.read()
+            self.txt_box.insert(tk.END, text)
+        self.title(f"Simple Text Editor - {filepath}")
+
+    def save_file(self):
+        """Save the current file as a new file."""
+        filepath = asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")],
+        )
+        if not filepath:
+            return
+        with open(filepath, mode="w", encoding="utf-8") as output_file:
+            text = self.txt_box.get("1.0", tk.END)
+            output_file.write(text)
+        self.title(f"Simple Text Editor - {filepath}")
 
 
 class MainApp(tk.Tk):
