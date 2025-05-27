@@ -67,16 +67,20 @@ class Optimiser(Toplevel):
     global MethodDict
     dropmenu = ""
     dropdowns = []
+    dropchoises = []
     numdropdowns = 0
 
     def __init__(self, parent):
         super().__init__(parent)
         self.protocol("WM_DELETE_WINDOW", self.close_optimiser)
+        self.protocol()
         self.title("Algorithm optimiser")
         self.rowconfigure(0, minsize=400, weight=1)
         self.columnconfigure(1, minsize=400, weight=1)
         self.dropmenu = LabelFrame(self, text="Chosen methods", width=40, height=10)
-        self.dropdowns = [OptionMenu(self.dropmenu, "Choose method", *MethodDict)]
+        self.dropchoises = [StringVar(value="Choose method")]
+        self.dropchoises[self.numdropdowns].trace('w', self.trace)
+        self.dropdowns = [OptionMenu(self.dropmenu, self.dropchoises[self.numdropdowns], *MethodDict.keys())]
         btn_close = Button(self, text="Close optimiser", command=self.close_optimiser)
 
         frm_buttons = Frame(self, relief=RAISED, bd=2)
@@ -96,15 +100,24 @@ class Optimiser(Toplevel):
         OptimiserOpen = False
 
     def add_dropdown(self):
-        self.dropdowns.append(OptionMenu(self.dropmenu, "Choose method", *MethodDict))
         self.numdropdowns += 1
+        self.dropchoises.append(StringVar(value="Choose method"))
+        self.dropchoises[self.numdropdowns].trace('w', self.trace(self.numdropdowns))
+        self.dropdowns.append(OptionMenu(self.dropmenu, self.dropchoises[self.numdropdowns], *MethodDict))
         self.dropdowns[self.numdropdowns].grid(row=self.numdropdowns, column=0, sticky="ew", padx=5, pady=5)
 
     def remove_dropdown(self):
         self.dropdowns[self.numdropdowns].grid_remove()
         self.dropdowns.pop()
+        # self.dropchoises[self.numdropdowns].trace_remove("write", "end")
+        self.dropchoises.pop()
         self.numdropdowns -= 1
 
+    def trace(self, *args):
+        print("traced")
+
+    # how to track which trace triggered?
+    # use dictionaries maybe?
 
 
 class MainApp(tk.Tk):
