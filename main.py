@@ -66,7 +66,9 @@ class KeyEditor(Toplevel):
 class Optimiser(Toplevel):
     global MethodDict
     dropmenu = ""
+    methodoptimisation = ""
     dropdowns = []
+    # dropbuttons = []
     dropchoises = []
     numdropdowns = 0
 
@@ -78,18 +80,23 @@ class Optimiser(Toplevel):
         self.rowconfigure(0, minsize=400, weight=1)
         self.columnconfigure(1, minsize=400, weight=1)
         self.dropmenu = LabelFrame(self, text="Chosen methods", width=40, height=10)
+        self.methodoptimisation = LabelFrame(self, text="No method chosen", width=40, height=10)
         self.dropchoises = [StringVar(value="Choose method")]
         self.dropchoises[self.numdropdowns].trace('w', self.trace)
         self.dropdowns = [OptionMenu(self.dropmenu, self.dropchoises[self.numdropdowns], *MethodDict.keys())]
+        # self.dropbuttons = [Button(self.dropmenu, text="Configure method", command=lambda: self.set_config_method())]
         btn_close = Button(self, text="Close optimiser", command=self.close_optimiser)
 
         frm_buttons = Frame(self, relief=RAISED, bd=2)
         btn_add = Button(frm_buttons, text="Add method", command=self.add_dropdown)
         btn_remove = Button(frm_buttons, text="Remove method", command=self.remove_dropdown)
-        btn_add.grid(row=0, column=0, sticky="ns", padx="5", pady="5")
-        btn_remove.grid(row=0, column=1, sticky="ns", padx="5", pady="5")
+        # btn_add.grid(row=0, column=0, sticky="ns", padx="5", pady="5")
+        # btn_remove.grid(row=0, column=1, sticky="ns", padx="5", pady="5")
+
+        # add button to switch config window between selected dropdowns, only needed when i will have more than one
 
         self.dropmenu.grid(row=0, column=0, sticky="nsew")
+        self.methodoptimisation.grid(row=0, column=1, sticky="nsew")
         self.dropdowns[0].grid(row=self.numdropdowns, column=0, sticky="ew", padx=5, pady=5)
         frm_buttons.grid(row=1, column=0, sticky="ns")
         btn_close.grid(row=1, column=1, sticky="ns", padx="5", pady="5")
@@ -100,25 +107,37 @@ class Optimiser(Toplevel):
         OptimiserOpen = False
 
     def add_dropdown(self):
-        self.numdropdowns += 1
-        self.dropchoises.append(StringVar(value="Choose method"))
-        self.dropchoises[self.numdropdowns].trace('w', self.trace(self.numdropdowns))
-        self.dropdowns.append(OptionMenu(self.dropmenu, self.dropchoises[self.numdropdowns], *MethodDict))
-        self.dropdowns[self.numdropdowns].grid(row=self.numdropdowns, column=0, sticky="ew", padx=5, pady=5)
+        if self.numdropdowns < len(MethodDict)-1:
+            self.numdropdowns += 1
+            self.dropchoises.append(StringVar(value="Choose method"))  # change to a variable max value later
+            self.dropchoises[self.numdropdowns].trace('w', self.trace)
+            self.dropdowns.append(OptionMenu(self.dropmenu, self.dropchoises[self.numdropdowns], *MethodDict))
+            self.dropdowns[self.numdropdowns].grid(row=self.numdropdowns, column=0, sticky="ew", padx=5, pady=5)
 
     def remove_dropdown(self):
-        self.dropdowns[self.numdropdowns].grid_remove()
-        self.dropdowns.pop()
-        # self.dropchoises[self.numdropdowns].trace_remove("write", "end")
-        self.dropchoises.pop()
-        self.numdropdowns -= 1
+        if self.numdropdowns > 0:
+            self.dropdowns[self.numdropdowns].grid_remove()
+            self.dropdowns.pop()
+            # self.dropchoises[self.numdropdowns].trace_remove("write", "end")
+            self.dropchoises.pop()
+            self.numdropdowns -= 1
 
-    def trace(self, *args):
-        print("traced")
+    def trace(self, *args):  # try passing variables to trace, might solve some of the issues
+        self.methodoptimisation.config(text=self.dropchoises[0].get())  # comment this out when/if enabling multiple dropdowns
+        for key in MethodDict.keys():
+            MethodDict[key] = 0
+        for element in self.dropchoises:
+            if element.get() != "Choose method":
+                MethodDict[element.get()] = 1
+        print(MethodDict.values())
 
     # how to track which trace triggered?
     # use dictionaries maybe?
+    # pass the id of the triggered stringval as key for dictionary
+    # set what was the stringval set too as the value
 
+    # def set_config_method(self, a):
+    #     self.methodoptimisation.config(text=self.dropchoises[a].get())
 
 class MainApp(tk.Tk):
     N = 1
