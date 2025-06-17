@@ -95,10 +95,10 @@ class Optimiser(Toplevel):
 
         # add button to switch config window between selected dropdowns, only needed when i will have more than one
 
-        self.dropmenu.grid(row=0, column=0, sticky="nsew")
-        self.methodoptimisation.grid(row=0, column=1, sticky="nsew")
+        self.dropmenu.grid(row=0, column=0, sticky="nsew", padx="5", pady="5")
+        self.methodoptimisation.grid(row=0, column=1, sticky="nsew", padx="5", pady="5")
         self.dropdowns[0].grid(row=self.numdropdowns, column=0, sticky="ew", padx=5, pady=5)
-        frm_buttons.grid(row=1, column=0, sticky="ns")
+        frm_buttons.grid(row=1, column=0, sticky="ns", padx="5", pady="5")
         btn_close.grid(row=1, column=1, sticky="ns", padx="5", pady="5")
 
     def close_optimiser(self):
@@ -139,14 +139,16 @@ class Optimiser(Toplevel):
     # def set_config_method(self, a):
     #     self.methodoptimisation.config(text=self.dropchoises[a].get())
 
+
 class MainApp(tk.Tk):
     N = 1
     Input = ""
-    txt_edit = 0
+    txt_edit = ""
     filepath = "keywords.txt"
     keys = []
     keysfound = []
     showkeys = ""
+    output = ""
 
     def __init__(self):
         super().__init__()
@@ -156,9 +158,11 @@ class MainApp(tk.Tk):
                 self.keys.append(text.split(';'))
         print(self.keys)
         self.title("Math Expert System")
-        self.txt_edit = Text(self, width=40, height=10)
-        self.showkeys = LabelFrame(self, text="Found keys will be shown here", width=40, height=10)
+        self.configure(width=60, height=20)
+        self.txt_edit = Text(self, width=40, height=14)
+        self.showkeys = LabelFrame(self, text="Found keys will be shown here", width=40, height=14)
         self.keysfound = [Label(self.showkeys, text="")]
+        self.output = Text(self, width=40, height=14)
 
         frm_buttons = Frame(self, relief=RAISED, bd=2)
         btn_input = Button(frm_buttons, text="Input", command=self.read_input)
@@ -173,9 +177,10 @@ class MainApp(tk.Tk):
 
         self.set_keys()
 
-        self.showkeys.grid(row=0, column=1, sticky="ns")
-        frm_buttons.grid(row=1, column=0, sticky="ns")
-        self.txt_edit.grid(row=0, column=0, sticky="nsew")
+        self.showkeys.grid(row=0, column=2, sticky="ns", padx=5, pady=5)
+        frm_buttons.grid(row=1, column=0, sticky="ns", padx=5, pady=5)
+        self.txt_edit.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        self.output.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 
     def set_keys(self):
         i = 0
