@@ -5,7 +5,7 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 EditorOpen = False
 OptimiserOpen = False
 MethodDict = {
-    "name1": 0,
+    "Метод Отжига": 0,
     "name2": 0,
     "name3": 0
 }
@@ -71,35 +71,59 @@ class Optimiser(Toplevel):
     # dropbuttons = []
     dropchoises = []
     numdropdowns = 0
+    output = ""
 
     def __init__(self, parent):
         super().__init__(parent)
         self.protocol("WM_DELETE_WINDOW", self.close_optimiser)
         self.protocol()
         self.title("Algorithm optimiser")
-        self.rowconfigure(0, minsize=400, weight=1)
+        self.rowconfigure(0, minsize=200, weight=1)
         self.columnconfigure(1, minsize=400, weight=1)
         self.dropmenu = LabelFrame(self, text="Chosen methods", width=40, height=10)
-        self.methodoptimisation = LabelFrame(self, text="No method chosen", width=40, height=10)
+
         self.dropchoises = [StringVar(value="Choose method")]
         self.dropchoises[self.numdropdowns].trace('w', self.trace)
         self.dropdowns = [OptionMenu(self.dropmenu, self.dropchoises[self.numdropdowns], *MethodDict.keys())]
+        self.output = Text(self, width=40, height=6)
         # self.dropbuttons = [Button(self.dropmenu, text="Configure method", command=lambda: self.set_config_method())]
         btn_close = Button(self, text="Close optimiser", command=self.close_optimiser)
+
+        self.methodoptimisation = LabelFrame(self, text="No method chosen", width=40, height=10)
+
+        labelFunc = Label(self.methodoptimisation, text="Symbolic notation of the function:")
+        textFunc = Text(self.methodoptimisation, width=20, height=3)
+        labelN = Label(self.methodoptimisation, text="Number of free variables:")
+        entryN = Entry(self.methodoptimisation)
+        labelx = Label(self.methodoptimisation, text="Limits on the X axis:")
+        entryx = Entry(self.methodoptimisation)
+        labely = Label(self.methodoptimisation, text="Limits on the Z axis:")
+        entryy = Entry(self.methodoptimisation)
+        labelFunc.grid(row=0, column=0, sticky="ns", padx="5", pady="5")
+        textFunc.grid(row=0, column=1, sticky="ns", padx="5", pady="5")
+        labelN.grid(row=1, column=0, sticky="ns", padx="5", pady="5")
+        entryN.grid(row=1, column=1, sticky="ns", padx="5", pady="5")
+        labelx.grid(row=2, column=0, sticky="ns", padx="5", pady="5")
+        entryx.grid(row=2, column=1, sticky="ns", padx="5", pady="5")
+        labely.grid(row=3, column=0, sticky="ns", padx="5", pady="5")
+        entryy.grid(row=3, column=1, sticky="ns", padx="5", pady="5")
 
         frm_buttons = Frame(self, relief=RAISED, bd=2)
         btn_add = Button(frm_buttons, text="Add method", command=self.add_dropdown)
         btn_remove = Button(frm_buttons, text="Remove method", command=self.remove_dropdown)
+        btn_optimise = Button(frm_buttons, text="Optimise", command=self.optimise)
         # btn_add.grid(row=0, column=0, sticky="ns", padx="5", pady="5")
         # btn_remove.grid(row=0, column=1, sticky="ns", padx="5", pady="5")
+        btn_optimise.grid(row=0, column=2, sticky="ns", padx="5", pady="5")
 
         # add button to switch config window between selected dropdowns, only needed when i will have more than one
 
         self.dropmenu.grid(row=0, column=0, sticky="nsew", padx="5", pady="5")
         self.methodoptimisation.grid(row=0, column=1, sticky="nsew", padx="5", pady="5")
         self.dropdowns[0].grid(row=self.numdropdowns, column=0, sticky="ew", padx=5, pady=5)
-        frm_buttons.grid(row=1, column=0, sticky="ns", padx="5", pady="5")
-        btn_close.grid(row=1, column=1, sticky="ns", padx="5", pady="5")
+        frm_buttons.grid(row=2, column=0, sticky="ns", padx="5", pady="5")
+        btn_close.grid(row=2, column=1, sticky="ns", padx="5", pady="5")
+        self.output.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
 
     def close_optimiser(self):
         self.destroy()
@@ -130,6 +154,11 @@ class Optimiser(Toplevel):
             if element.get() != "Choose method":
                 MethodDict[element.get()] = 1
         print(MethodDict.values())
+
+    def optimise(self):
+        self.output.delete(1.0, "end")
+        self.output.insert(1.0, "В реализации рекомедуется использовать, обычный цикл, "
+                                "и стандартный генератор псевдослучайных чисел")
 
     # how to track which trace triggered?
     # use dictionaries maybe?
@@ -188,6 +217,13 @@ class MainApp(tk.Tk):
             key.grid(row=i, column=0, sticky="ew", padx=5, pady=5)
             i += 1
 
+    def clear_keys(self):
+        i = 0
+        for key in self.keysfound:
+            key.grid_remove()
+            i += 1
+        self.keysfound = []
+
     def open_editor(self):
         global EditorOpen
         editor = KeyEditor(self)
@@ -206,6 +242,7 @@ class MainApp(tk.Tk):
         self.Input = self.txt_edit.get("1.0", END)
 
     def analyze(self):
+        self.clear_keys()
         for row in self.keys:
             for key in row:
                 if key in self.Input:
@@ -214,6 +251,8 @@ class MainApp(tk.Tk):
                 else:
                     print("no")
         self.set_keys()
+        self.output.delete(1.0, "end")
+        self.output.insert(1.0, "Метод Отжига")
 
 
 window = MainApp()
